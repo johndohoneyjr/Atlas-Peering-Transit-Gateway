@@ -21,5 +21,5 @@ variable "scenario" {
 }
 
 variable "public_key" {
-  default = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7KJNl9hFD5lqp5oSARNqvip4uxyYOTPQnZCkEq71KXeRXipq3n2GNnXnvvGULZ4XaupGFUk9f0RQrGB7uwiZv37f6L/dkaRdVehwBT3nYQuhSYJzTFQewRwgzzJnokRsu0R5bVgKmjaJATtlpx9TlrjfreX6WwuffqrYhxBfhdHATieEbJ2wDWwbpyaZJMznwYKZrcg2X+Q91ZYC0iUaYSuXTV3c156gLWkdctegg8bEKij80o3z3needfulhqBuY7piY4qmazVjfveIcABQkr3553bb51ykWbDY6nJZHXSG26kg+RE6Ohtz69JuUybdig46i+ZGEkfsBjL4TJSHB johndohoney@Johns-MacBook-Pro.local"
+  default = ""
 }
