@@ -1,7 +1,7 @@
 AWS Transit Gateway w/MongoDB Atlas Peering using Hashicorp Terraform
 ===========================================
 
-This example of MongoDB Peering, uses the AWS Transit gateway, as a simple way to move between environments.  
+This example of MongoDB Peering, uses the AWS Transit gateway, as a simple way to move between environments.
 
 SSH Forwarding
 --------------
@@ -47,15 +47,15 @@ There is a 'shared' environment will host shared enterprise components, such as 
 * The dev VPCs can access each other, and the shared VPC
 * The prod VPCs can only access the shared VPC
 
-To enable this use case, three Route Tables are created in the Transit Gateway, one per environment.  Both dev VPCs attach to the same Route Table, whereas the shared and prod VPCs each attach to their respective Route Table. 
+To enable this use case, three Route Tables are created in the Transit Gateway, one per environment.  Both dev VPCs attach to the same Route Table, whereas the shared and prod VPCs each attach to their respective Route Table.
 
-Each VPC gets a t2.micro Ubuntu instance to validate the network connectivity over ssh and ICMP (ping). The instance in the 'shared' is assigned a public IP so a VPN connection isn't needed. 
+Each VPC gets a t2.micro Ubuntu instance to validate the network connectivity over ssh and ICMP (ping). The instance in the 'shared' is assigned a public IP so a VPN connection isn't needed.
 
 The production environment has a Centos AMI, with MongoDB Binaries pre-installed. Both US-WEST-1 and US-WEST-2 Mongo Centos AMIs are documented in the variables.tf
 
 ## Architecture Implementation
 
-![transit-gateway-architecture](./image/transit-gateway.png?raw=true "Transit Gateway Architecture")
+![transit-gateway-architecture](./image/transit-gateway-demo.png?raw=true "Transit Gateway Architecture")
 
 The green links on the diagram represents the authorized traffic flows through the gateway.
 
@@ -64,6 +64,7 @@ Prerequisites
 
 Be sure to set up your AWS Credentials.  They are read by Terraform
 
+```sh
 [default]
 aws_access_key_id = Foo1
 aws_secret_access_key = Bar1
@@ -73,17 +74,17 @@ region = us-west-2
 aws_access_key_id=Foo2
 aws_secret_access_key=Bar2
 region = us-west-2
+```
 
 I set the following environment variables in my ~/.bash_profile
-
+```sh
 AWS_PROFILE=default
 AWS_DEFAULT_REGION=us-west-1
-
+```
 Note: I am overridding the us-west-2 in my credentials file with the value of AWS_DEFAULT_REGION.  Terraform takes this value.
 
-Usage
------
-
+#Usage
+#-----
 * Change the public_key value to a keypair you own
 * Deploy the setup with:
 ```sh
