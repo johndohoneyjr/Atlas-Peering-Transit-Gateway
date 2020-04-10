@@ -685,32 +685,23 @@ provider "mongodbatlas" {
   private_key  = "${var.atlas-private-key}"
 }
 
-#resource "mongodbatlas_network_container" "mynet" {
-#  project_id       = "${var.atlas-project-id}"
-#  atlas_cidr_block = "${aws_vpc.vpc-4.cidr_block}"
-#  provider_name    = "${var.atlas-cloud-provider}"
-#  region_name      = "${var.region}"
+resource "mongodbatlas_private_endpoint" "privateLink" {
+  project_id    = "${var.atlas-project-id}"
+  provider_name = "${var.atlas-cloud-provider}"
+  region        = "${var.region}"
+}
+
+
+resource "aws_vpc_endpoint" "atlas_service" {
+  vpc_id             = "${aws_vpc.vpc-4.id}"
+  service_name       = "${mongodbatlas_private_endpoint.privateLink.endpoint_service_name}"
+  vpc_endpoint_type  = "Interface"
+  subnet_ids         = [ "${aws_subnet.vpc-4-sub-a.id}" ]
+  security_group_ids = [ "${aws_security_group.sec-group-vpc-4-ssh-icmp.id}" ]
+}
+
+#resource "mongodbatlas_private_endpoint_link" "myatlas" {
+#  project_id            = "${mongodbatlas_private_endpoint.myatlas.project_id}"
+#  private_link_id       = "${mongodbatlas_private_endpoint.myatlas.private_link_id}"
+#  interface_endpoint_id = "${aws_vpc_endpoint.atlas_service.id}"
 #}
-
-resource "mongodbatlas_network_container" "mynet" {
-  project_id       = "5d656831c56c98173cf5af4b"
-  atlas_cidr_block =  "${var.atlas-aws-cidr}" 
-  provider_name    = "AWS"
-  region_name      = "us-west-2"
-}
-
-resource "mongodbatlas_network_peering" "myconn" {
-  accepter_region_name   = "${var.region}"
-  project_id             = "${var.atlas-project-id}"
-  container_id           = "${mongodbatlas_network_container.mynet.container_id}"
-  provider_name          = "${var.atlas-cloud-provider}"
-  route_table_cidr_block = "${aws_vpc.vpc-4.cidr_block}"
-  vpc_id                 = "${aws_vpc.vpc-4.id}"
-  aws_account_id         = "${var.amazon-account-number}"
-}
-
-# the following assumes an AWS provider is configured  
-resource "aws_vpc_peering_connection_accepter" "mypeer" {
-  vpc_peering_connection_id = "${mongodbatlas_network_peering.myconn.connection_id}"
-  auto_accept = true
-}
