@@ -1,7 +1,7 @@
 AWS Transit Gateway w/MongoDB Atlas Peering using Hashicorp Terraform
 ===========================================
 
-This example of MongoDB Peering, uses the AWS Transit gateway, as a simple way to move between environments.  
+This example of MongoDB Peering, uses the AWS Transit gateway, as a simple way to move between environments.
 
 SSH Forwarding
 --------------
@@ -47,9 +47,9 @@ There is a 'shared' environment will host shared enterprise components, such as 
 * The dev VPCs can access each other, and the shared VPC
 * The prod VPCs can only access the shared VPC
 
-To enable this use case, three Route Tables are created in the Transit Gateway, one per environment.  Both dev VPCs attach to the same Route Table, whereas the shared and prod VPCs each attach to their respective Route Table. 
+To enable this use case, three Route Tables are created in the Transit Gateway, one per environment.  Both dev VPCs attach to the same Route Table, whereas the shared and prod VPCs each attach to their respective Route Table.
 
-Each VPC gets a t2.micro Ubuntu instance to validate the network connectivity over ssh and ICMP (ping). The instance in the 'shared' is assigned a public IP so a VPN connection isn't needed. 
+Each VPC gets a t2.micro Ubuntu instance to validate the network connectivity over ssh and ICMP (ping). The instance in the 'shared' is assigned a public IP so a VPN connection isn't needed.
 
 The production environment has a Centos AMI, with MongoDB Binaries pre-installed. Both US-WEST-1 and US-WEST-2 Mongo Centos AMIs are documented in the variables.tf
 
