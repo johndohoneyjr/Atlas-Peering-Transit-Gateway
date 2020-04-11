@@ -6,6 +6,8 @@
 
 resource "aws_vpc" "vpc-1" {
   cidr_block = "10.10.0.0/16"
+  enable_dns_support = true
+  enable_dns_hostnames = true
   tags = {
     Name = "${var.scenario}-vpc1-dev"
     scenario = "${var.scenario}"
@@ -15,6 +17,8 @@ resource "aws_vpc" "vpc-1" {
 
 resource "aws_vpc" "vpc-2" {
   cidr_block = "10.11.0.0/16"
+  enable_dns_support = true
+  enable_dns_hostnames = true
   tags = {
     Name = "${var.scenario}-vpc2-dev"
     scenario = "${var.scenario}"
@@ -24,6 +28,8 @@ resource "aws_vpc" "vpc-2" {
 
 resource "aws_vpc" "vpc-3" {
   cidr_block = "10.12.0.0/16"
+  enable_dns_support = true
+  enable_dns_hostnames = true
   tags = {
     Name = "${var.scenario}-vpc3-shared"
     scenario = "${var.scenario}"
@@ -33,6 +39,8 @@ resource "aws_vpc" "vpc-3" {
 
 resource "aws_vpc" "vpc-4" {
   cidr_block = "10.13.0.0/16"
+  enable_dns_support = true
+  enable_dns_hostnames = true
   tags = {
     Name = "${var.scenario}-vpc4-prod"
     scenario = "${var.scenario}"
@@ -409,8 +417,8 @@ resource "aws_ec2_transit_gateway_route_table_propagation" "tgw-rt-prod-to-vpc-3
 
 # Key Pair
 
-resource "aws_key_pair" "test-tgw-keypair" {
-  key_name   = "test-tgw-keypair"
+resource "aws_key_pair" "tgw-keypair" {
+  key_name   = "tgw-keypair"
   public_key = "${var.public_key}"
 }
 
@@ -605,7 +613,7 @@ resource "aws_instance" "test-tgw-instance1-dev" {
   instance_type               = "t2.micro"
   subnet_id                   = "${aws_subnet.vpc-1-sub-a.id}"
   vpc_security_group_ids     = [ "${aws_security_group.sec-group-vpc-1-ssh-icmp.id}" ]
-  key_name                    = "${aws_key_pair.test-tgw-keypair.key_name}"
+  key_name                    = "${aws_key_pair.tgw-keypair.key_name}"
   private_ip                  = "10.10.1.10"
 
   tags = {
@@ -623,7 +631,7 @@ resource "aws_instance" "test-tgw-instance2-dev" {
   instance_type               = "t2.micro"
   subnet_id                   = "${aws_subnet.vpc-2-sub-a.id}"
   vpc_security_group_ids     = [ "${aws_security_group.sec-group-vpc-2-ssh-icmp.id}" ]
-  key_name                    = "${aws_key_pair.test-tgw-keypair.key_name}"
+  key_name                    = "${aws_key_pair.tgw-keypair.key_name}"
   private_ip                  = "10.11.1.10"
 
   tags = {
@@ -634,14 +642,13 @@ resource "aws_instance" "test-tgw-instance2-dev" {
     vpc         = "2"
   }
 }
-
 resource "aws_instance" "test-tgw-instance3-shared" {
 #  ami                         = "${data.aws_ami.ubuntu.id}"
   ami                         = "${var.mongo-centos-ami}"
   instance_type               = "t2.micro"
   subnet_id                   = "${aws_subnet.vpc-3-sub-a.id}"
   vpc_security_group_ids     = [ "${aws_security_group.sec-group-vpc-3-ssh-icmp.id}" ]
-  key_name                    = "${aws_key_pair.test-tgw-keypair.key_name}"
+  key_name                    = "${aws_key_pair.tgw-keypair.key_name}"
   private_ip                  = "10.12.1.10"
   associate_public_ip_address = true
 
@@ -660,7 +667,7 @@ resource "aws_instance" "test-tgw-instance4-prod" {
   instance_type               = "t2.micro"
   subnet_id                   = "${aws_subnet.vpc-4-sub-a.id}"
   vpc_security_group_ids     = [ "${aws_security_group.sec-group-vpc-4-ssh-icmp.id}" ]
-  key_name                    = "${aws_key_pair.test-tgw-keypair.key_name}"
+  key_name                    = "${aws_key_pair.tgw-keypair.key_name}"
   private_ip                  = "10.13.1.10"
 
   tags = {
@@ -670,47 +677,4 @@ resource "aws_instance" "test-tgw-instance4-prod" {
     az          = "${var.az1}"
     vpc         = "4"
   }
-}
-
-#
-# Insert Vault Plugin to get credentials (public/private keys) from Vault
-#
-# Alternative
-#  $ export MONGODB_ATLAS_PUBLIC_KEY="xxxx"
-#  $ export MONGODB_ATLAS_PRIVATE_KEY="xxxx"
-#
-
-provider "mongodbatlas" {
-  public_key = "${var.atlas-public-key}"
-  private_key  = "${var.atlas-private-key}"
-}
-
-#resource "mongodbatlas_network_container" "mynet" {
-#  project_id       = "${var.atlas-project-id}"
-#  atlas_cidr_block = "${aws_vpc.vpc-4.cidr_block}"
-#  provider_name    = "${var.atlas-cloud-provider}"
-#  region_name      = "${var.region}"
-#}
-
-resource "mongodbatlas_network_container" "mynet" {
-  project_id       = "5d656831c56c98173cf5af4b"
-  atlas_cidr_block =  "${var.atlas-aws-cidr}" 
-  provider_name    = "AWS"
-  region_name      = "us-west-2"
-}
-
-resource "mongodbatlas_network_peering" "myconn" {
-  accepter_region_name   = "${var.region}"
-  project_id             = "${var.atlas-project-id}"
-  container_id           = "${mongodbatlas_network_container.mynet.container_id}"
-  provider_name          = "${var.atlas-cloud-provider}"
-  route_table_cidr_block = "${aws_vpc.vpc-4.cidr_block}"
-  vpc_id                 = "${aws_vpc.vpc-4.id}"
-  aws_account_id         = "${var.amazon-account-number}"
-}
-
-# the following assumes an AWS provider is configured  
-resource "aws_vpc_peering_connection_accepter" "mypeer" {
-  vpc_peering_connection_id = "${mongodbatlas_network_peering.myconn.connection_id}"
-  auto_accept = true
 }
