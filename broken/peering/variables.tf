@@ -21,13 +21,13 @@ variable "atlas-aws-cidr" {
   default = "192.168.0.0/24"
 }
 variable "amazon-account-number" {
-  default = "979559056307"
+  default = ""
 }
 variable "atlas-public-key" {
   default = "dbvhfckg"
 }
 variable "atlas-private-key" {
-  default = "9334c49e-82c7-4abe-bc40-f5dce52ac063"
+  default = ""
 }
 
 variable "atlas-project-id" {
